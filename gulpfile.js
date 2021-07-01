@@ -23,7 +23,10 @@ combineTool.config({
     debug: true,
     commonFolder: tmplFolder,
     compiledFolder: srcFolder,
-    projectName: 'd',
+    projectName: 'pd',//项目名称，用于样式前缀、内部id规则生成等
+    loaderType: 'cmd_es',//加载器类型，或转换成amd iife等
+    tmplSupportSlotFn: false,//关闭部分功能以生成更少的编译代码
+    tmplSupportSlot: false,//
     loaderType: 'cmd_es',
     galleries: {
         mxRoot: 'gallery/',
