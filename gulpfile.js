@@ -8,6 +8,8 @@ let del = require('del');
 let fs = require('fs');
 let ts = require('typescript');
 let concat = require('gulp-concat');
+let terser = require('terser');
+let through = require('through2');
 let combineTool = require('../magix-composer/index');
 
 let removeESModuleReg = /"use strict";\s*Object\.defineProperty\(exports,\s*"__esModule",\s*\{\s*value:\s*true\s*\}\);?/g;
@@ -19,6 +21,20 @@ let cleanCode = code => {
     return code.replace(removeESModuleReg, '').replace(exportsReg, 'module.exports=').replace(removeMiddleDefault, '$1');
 };
 
+let minify = options => {
+    return through.obj(async function (chunk, enc, callback) {
+        if (chunk.isBuffer()) {
+            let code = chunk.contents.toString('utf8');
+            let output = await terser.minify(code, options);
+            if (output.error) {
+                throw output.error;
+            }
+            chunk.contents = Buffer.from(output.code);
+            this.push(chunk);
+            return callback();
+        }
+    });
+};
 combineTool.config({
     debug: true,
     commonFolder: tmplFolder,
@@ -81,7 +97,6 @@ gulp.task('watch', gulp.series('combine', () => {
     });
 }));
 
-var terser = require('gulp-terser-scoped');
 gulp.task('cleanBuild', () => {
     return del(buildFolder);
 });
@@ -92,7 +107,7 @@ gulp.task('build', gulp.series('cleanBuild', 'cleanSrc', () => {
     });
     combineTool.combine().then(() => {
         gulp.src(srcFolder + '/**/*.js')
-            .pipe(terser({
+            .pipe(minify({
                 compress: {
                     drop_console: true,
                     drop_debugger: true,
@@ -137,7 +152,7 @@ gulp.task('dist', gulp.series('cleanSrc', () => {
             './src/elements/**',
             './src/designer/**'])
             .pipe(concat('index.js'))
-            .pipe(terser(terserOptions))
+            .pipe(minify(terserOptions))
             .pipe(gulp.dest('./dist'));
     });
 }));
