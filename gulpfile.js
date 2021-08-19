@@ -154,5 +154,14 @@ gulp.task('dist', gulp.series('cleanSrc', () => {
             .pipe(concat('index.js'))
             .pipe(minify(terserOptions))
             .pipe(gulp.dest('./dist'));
+    }).then(() => {
+        return gulp.src([
+            './src/preview.js',
+            './src/i18n/**',
+            './src/elements/**',
+            './src/preview/**'])
+            .pipe(concat('preview.js'))
+            .pipe(minify(terserOptions))
+            .pipe(gulp.dest('./dist'));
     });
 }));
