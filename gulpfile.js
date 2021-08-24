@@ -159,6 +159,9 @@ gulp.task('dist', gulp.series('cleanSrc', () => {
             './src/preview.js',
             './src/i18n/**',
             './src/elements/**',
+            '!./src/elements/**/designer.js',
+            '!./src/elements/**/dshow.js',
+            '!./src/elements/normal.js',
             './src/preview/**'])
             .pipe(concat('preview.js'))
             .pipe(minify(terserOptions))
